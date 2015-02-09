@@ -1,0 +1,78 @@
+class ViewController: UIViewController {
+
+    
+    @IBOutlet weak var bitcoinPrice: UILabel!
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var updateTimeLabel: UILabel!
+    
+    @IBAction func refreshTapped(sender: AnyObject) {
+        update()
+    }
+    @IBAction func buyNowPressed(sender: AnyObject) {
+        UIApplication.sharedApplication().openURL(NSURL(string:"https://www.coinbase.com/join/jindig")!)
+    }
+    
+    let tracker = Tracker()
+    let xOffset: CGFloat = -22
+    
+    var updating = false
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        view.tintColor = UIColor.blackColor()
+        
+        
+        let originalPrice = tracker.cachedPrice()
+        updateDate(tracker.cachedDate())
+        updatePrice(originalPrice)
+        tracker.requestPrice { (price, error) -> () in
+            if error? == nil {
+                self.updateDate(NSDate())
+                self.updateImage(originalPrice, newPrice: price!)
+                self.updatePrice(price!)
+            }
+        }
+
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    private func updateDate(date: NSDate) {
+        self.updateTimeLabel.text = "Price as of \(Tracker.dateFormatter.stringFromDate(date))"
+    }
+    
+    private func updateImage(originalPrice: NSNumber, newPrice: NSNumber) {
+        if newPrice.doubleValue > originalPrice.doubleValue {
+                imageView.image = UIImage(named: "Up")
+            } else {
+                imageView.image = UIImage(named: "Down")
+            }
+    }
+    
+    private func updatePrice(price: NSNumber) {
+        self.bitcoinPrice.text = Tracker.priceFormatter.stringFromNumber(price)
+    }
+    
+// Helper methods...
+    
+    private func update() {
+        if !updating {
+            updating = true
+            let originalPrice = tracker.cachedPrice()
+            tracker.requestPrice { (price, error) -> () in
+                if error == nil {
+                    self.updatePrice(price!)
+                    self.updateDate(NSDate())
+                    self.updateImage(originalPrice, newPrice: price!)
+                }
+                self.updating = false
+            }
+        }
+    }
+
+    
+}
