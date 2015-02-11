@@ -11,7 +11,7 @@ class ViewController: UIViewController {
     @IBAction func buyNowPressed(sender: AnyObject) {
         UIApplication.sharedApplication().openURL(NSURL(string:"https://www.coinbase.com/join/jindig")!)
     }
-    
+    // bait
     let tracker = Tracker()
     let xOffset: CGFloat = -22
     
